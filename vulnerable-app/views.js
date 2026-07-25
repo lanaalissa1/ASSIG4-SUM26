@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /*
  * CampusSwap - view helpers (STARTER / VULNERABLE build)
@@ -9,16 +9,18 @@
 
 function esc(s) {
   return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function layout({ title, session, body }) {
   const nav = session
-    ? `<span class="who">Signed in as <strong>${esc(session.username)}</strong></span>
+    ? `<span class="who">Signed in as <strong>${esc(
+        session.username
+      )}</strong></span>
        <a href="/wallet">Wallet</a>
        <form method="POST" action="/logout" class="inline"><button class="link">Log out</button></form>`
     : `<a href="/login">Log in</a> <a href="/register">Register</a>`;
@@ -44,19 +46,23 @@ function layout({ title, session, body }) {
 }
 
 function renderHome({ session, items, flash }) {
-  const cards = items.map(it => `
+  const cards = items
+    .map(
+      (it) => `
     <a class="card" href="/item/${it.id}">
       <h3>${esc(it.title)}</h3>
       <p class="desc">${esc(it.description)}</p>
       <p class="price">${esc(it.price)} credits</p>
       <p class="seller">seller: ${esc(it.seller)}</p>
-    </a>`).join('');
+    </a>`
+    )
+    .join("");
 
   return layout({
-    title: 'Marketplace',
+    title: "Marketplace",
     session,
     body: `
-      ${flash ? `<p class="flash">${esc(flash)}</p>` : ''}
+      ${flash ? `<p class="flash">${esc(flash)}</p>` : ""}
       <section class="hero">
         <h1>Buy and sell around campus.</h1>
         <p>Trade textbooks, gadgets, and dorm gear with other students using CampusSwap credits.</p>
@@ -65,32 +71,43 @@ function renderHome({ session, items, flash }) {
           <button>Search</button>
         </form>
       </section>
-      <section class="grid">${cards}</section>`
+      <section class="grid">${cards}</section>`,
   });
 }
 
 function renderSearch({ session, q, rows }) {
   const list = rows.length
-    ? rows.map(r => `<li><strong>${esc(r.title)}</strong> — ${esc(r.price)} credits</li>`).join('')
+    ? rows
+        .map(
+          (r) =>
+            `<li><strong>${esc(r.title)}</strong> — ${esc(
+              r.price
+            )} credits</li>`
+        )
+        .join("")
     : '<li class="muted">No items matched.</li>';
   return layout({
-    title: 'Search',
+    title: "Search",
     session,
     body: `
       <p><a href="/">← Back to marketplace</a></p>
       <h1>Results for “${esc(q)}”</h1>
-      <ul class="results">${list}</ul>`
+      <ul class="results">${list}</ul>`,
   });
 }
 
 function renderItem({ session, item, comments, flash }) {
   // VULNERABLE SINK: comment.body is inserted WITHOUT escaping.
-  const commentHtml = comments.map(c => `
+  const commentHtml = comments
+    .map(
+      (c) => `
     <li class="comment">
       <span class="author">${esc(c.author)}</span>
       <span class="when">${esc(c.created)}</span>
-      <div class="cbody">${c.body}</div>
-    </li>`).join('');
+      <div class="cbody">${esc(c.body)}</div>
+    </li>`
+    )
+    .join("");
 
   const commentForm = session
     ? `<form method="POST" action="/item/${item.id}/comment" class="commentform">
@@ -104,7 +121,7 @@ function renderItem({ session, item, comments, flash }) {
     session,
     body: `
       <p><a href="/">← Back to marketplace</a></p>
-      ${flash ? `<p class="flash">${esc(flash)}</p>` : ''}
+      ${flash ? `<p class="flash">${esc(flash)}</p>` : ""}
       <article class="detail">
         <h1>${esc(item.title)}</h1>
         <p class="price big">${esc(item.price)} credits</p>
@@ -113,60 +130,73 @@ function renderItem({ session, item, comments, flash }) {
       </article>
       <section class="comments">
         <h2>Comments</h2>
-        <ul class="commentlist">${commentHtml || '<li class="muted">No comments yet.</li>'}</ul>
+        <ul class="commentlist">${
+          commentHtml || '<li class="muted">No comments yet.</li>'
+        }</ul>
         ${commentForm}
-      </section>`
+      </section>`,
   });
 }
 
 function renderLogin({ session, error }) {
   return layout({
-    title: 'Log in',
+    title: "Log in",
     session,
     body: `
       <div class="formwrap">
         <h1>Log in</h1>
-        ${error ? `<p class="error">${esc(error)}</p>` : ''}
+        ${error ? `<p class="error">${esc(error)}</p>` : ""}
         <form method="POST" action="/login">
           <label>Username <input name="username" autocomplete="username" required></label>
           <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
           <button>Log in</button>
         </form>
         <p class="muted">Demo account: <code>alice</code> / <code>sunshine22</code></p>
-      </div>`
+      </div>`,
   });
 }
 
 function renderRegister({ session, error }) {
   return layout({
-    title: 'Register',
+    title: "Register",
     session,
     body: `
       <div class="formwrap">
         <h1>Create an account</h1>
-        ${error ? `<p class="error">${esc(error)}</p>` : ''}
+        ${error ? `<p class="error">${esc(error)}</p>` : ""}
         <form method="POST" action="/register">
           <label>Username <input name="username" required></label>
           <label>Password <input name="password" type="password" required></label>
           <button>Register</button>
         </form>
-      </div>`
+      </div>`,
   });
 }
 
 function renderWallet({ session, me, transfers, flash }) {
   const history = transfers.length
-    ? transfers.map(t => `<li>${esc(t.from_user)} → ${esc(t.to_user)}: <strong>${esc(t.amount)}</strong> credits <span class="when">${esc(t.created)}</span></li>`).join('')
+    ? transfers
+        .map(
+          (t) =>
+            `<li>${esc(t.from_user)} → ${esc(t.to_user)}: <strong>${esc(
+              t.amount
+            )}</strong> credits <span class="when">${esc(
+              t.created
+            )}</span></li>`
+        )
+        .join("")
     : '<li class="muted">No transfers yet.</li>';
 
   return layout({
-    title: 'Wallet',
+    title: "Wallet",
     session,
     body: `
       <div class="wallet">
         <h1>Your wallet</h1>
-        ${flash ? `<p class="flash">${esc(flash)}</p>` : ''}
-        <p class="balance">Balance: <strong>${esc(me.credits)}</strong> credits</p>
+        ${flash ? `<p class="flash">${esc(flash)}</p>` : ""}
+        <p class="balance">Balance: <strong>${esc(
+          me.credits
+        )}</strong> credits</p>
 
         <h2>Send credits</h2>
         <form method="POST" action="/wallet/transfer" class="transferform">
@@ -177,12 +207,17 @@ function renderWallet({ session, me, transfers, flash }) {
 
         <h2>History</h2>
         <ul class="history">${history}</ul>
-      </div>`
+      </div>`,
   });
 }
 
 module.exports = {
-  esc, layout,
-  renderHome, renderSearch, renderItem,
-  renderLogin, renderRegister, renderWallet
+  esc,
+  layout,
+  renderHome,
+  renderSearch,
+  renderItem,
+  renderLogin,
+  renderRegister,
+  renderWallet,
 };
